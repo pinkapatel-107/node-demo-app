@@ -4,7 +4,7 @@ require("dotenv").config();
 const apiV1Router = express.Router();
 const PORT = process.env.PORT || 3001;
 const path = require("path");
-const { deleteOldFiles } = require("./listener");
+// const { deleteOldFiles } = require("./listener");
 
 const app = express();
 
