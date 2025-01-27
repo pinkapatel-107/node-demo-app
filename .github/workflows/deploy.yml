@@ -1,4 +1,4 @@
-name: Deploy to AWS
+name: Deploy to Server
 
 on:
   push:
@@ -8,26 +8,31 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
+    # Step 1: Checkout your code
     - name: Checkout code
-      uses: actions/checkout@v2
-      
-    - name: Setup SSH
-      uses: webfactory/ssh-agent@v0.5.4
+      uses: actions/checkout@v3
+
+    # Step 2: Set up SSH
+    - name: Set up SSH
+      uses: webfactory/ssh-agent@v0.5.3
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-        
-    - name: Add SSH known hosts
+
+    # Step 3: Deploy code to the server
+    - name: Deploy to Server
       run: |
-        mkdir -p ~/.ssh
-        ssh-keyscan -H ${{ secrets.AWS_HOST }} >> ~/.ssh/known_hosts
-        
-    - name: Deploy to AWS
-      run: |
-        ssh root@${{ secrets.AWS_HOST }} '
-          cd /var/www/html/node-demo-app &&
-          git pull origin main &&
-          npm install &&
-          pm2 restart node-demo-app || pm2 start npm --name "node-demo-app" -- start
-        '
+        ssh -o StrictHostKeyChecking=no root@74.208.194.227 << 'EOF'
+        # Navigate to the project folder
+        cd /var/www/html/node-demo-app
+
+        # Pull latest changes
+        git pull origin main
+
+        # Install dependencies
+        npm install
+
+        # Restart the application (Assuming you're using PM2)
+        pm2 restart all
+        EOF
