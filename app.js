@@ -22,7 +22,7 @@ apiV1Router.use("/converter", imageConverterRouter);
 
 app.use("/api/v1", apiV1Router);
 // deleteOldFiles();
-console.log("test");
+// console.log("test");
 app.listen(PORT, () => {
   console.log(`HTTP Server started on port ${PORT}...`);
 });
