@@ -1,27 +1,54 @@
-name: CI/CD
+name: Deploy to Server
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
-      
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.5.3
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-          
-      - name: Deploy to Server
-        run: |
-          ssh -o StrictHostKeyChecking=no root@your-server.com '
-            cd /var/www/html/node-demo-app &&
-            git stash &&              # Stash local changes
-            git reset --hard HEAD &&  # Reset any uncommitted changes
-            git pull origin main &&   # Pull latest changes
-            npm install &&            # Install dependencies
-            pm2 restart all          # Restart your app
-          '
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up SSH
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    - name: Deploy to Server
+      run: |
+        ssh -o StrictHostKeyChecking=no root@74.208.194.227 << 'EOF'
+        # Navigate to the project folder
+        cd /var/www/html/node-demo-app
+        
+        # Backup .env file
+        cp .env .env.backup 2>/dev/null || :
+        
+        # Reset any local changes
+        git fetch --all
+        git reset --hard origin/main
+        
+        # Restore .env file
+        cp .env.backup .env 2>/dev/null || :
+        
+        # Install dependencies
+        npm install
+        
+        # Clean npm cache (optional, but can help with dependency issues)
+        npm cache clean --force
+        
+        # Rebuild node modules
+        rm -rf node_modules
+        npm install
+        
+        # Restart the application
+        pm2 restart all
+        
+        # Show status
+        echo "Deployment completed"
+        git status
+        pm2 status
+        EOF
