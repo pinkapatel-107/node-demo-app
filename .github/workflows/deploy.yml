@@ -45,7 +45,7 @@ jobs:
         npm install
         
         # Restart the application
-        pm2 restart all
+        pm2 restart 18;
         
         # Show status
         echo "Deployment completed"
