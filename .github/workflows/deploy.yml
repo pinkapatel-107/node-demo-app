@@ -1,38 +1,27 @@
-name: Deploy to Server
+name: CI/CD
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
-    # Step 1: Checkout your code
-    - name: Checkout code
-      uses: actions/checkout@v3
-
-    # Step 2: Set up SSH (No passphrase input)
-    - name: Set up SSH
-      uses: webfactory/ssh-agent@v0.5.3
-      with:
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-    # Step 3: Deploy code to the server
-    - name: Deploy to Server
-      run: |
-        ssh -o StrictHostKeyChecking=no root@74.208.194.227 << 'EOF'
-        # Navigate to the project folder
-        cd /var/www/html/node-demo-app
-
-        # Pull latest changes
-        git pull origin main
-
-        # Install dependencies
-        npm install
-
-        # Restart the application (Assuming you're using PM2)
-        pm2 restart all
-        EOF
+      - uses: actions/checkout@v2
+      
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          
+      - name: Deploy to Server
+        run: |
+          ssh -o StrictHostKeyChecking=no root@your-server.com '
+            cd /var/www/html/node-demo-app &&
+            git stash &&              # Stash local changes
+            git reset --hard HEAD &&  # Reset any uncommitted changes
+            git pull origin main &&   # Pull latest changes
+            npm install &&            # Install dependencies
+            pm2 restart all          # Restart your app
+          '

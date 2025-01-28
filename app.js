@@ -2,7 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 require("dotenv").config();
 const apiV1Router = express.Router();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3334;
 const path = require("path");
 // const { deleteOldFiles } = require("./listener");
 
