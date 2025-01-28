@@ -56,5 +56,22 @@ module.exports = {
                 data: []
             });
         }
+    },
+    updateProfile: async (req, res) => {
+        try {
+            const results = await Register.find()
+        
+            return res.status(200).json({
+                status_code: 200,
+                message: "Data Reviewed successfully",
+                data: results
+            });
+        } catch (error) {
+            return res.status(500).json({
+                status_code: 500,
+                message: error.message,
+                data: []
+            });
+        }
     }
 }
